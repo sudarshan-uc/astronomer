@@ -5,7 +5,7 @@ from os import getenv
 import docker
 import pytest
 import testinfra
-from . import get_core_v1_client
+from . import get_core_v1_client, create_pod, delete_pod
 
 if not (namespace := getenv("NAMESPACE")):
     print("NAMESPACE env var is not present, using 'astronomer' namespace")
@@ -16,6 +16,21 @@ if not (release_name := getenv("RELEASE_NAME")):
         "RELEASE_NAME env var is not present, assuming 'astronomer' is the release name"
     )
     release_name = "astronomer"
+
+
+@pytest.fixture()
+def pod(request):
+    """Return a pod with the options specified in the markers, then delete it when done using it."""
+    # https://docs.pytest.org/en/7.1.x/how-to/fixtures.html#using-markers-to-pass-data-to-fixtures
+
+    marker = request.node.get_closest_marker("pod_data")
+
+    pod = create_pod(**marker.kwargs)
+    # breakpoint()
+    yield testinfra.get_host(
+        f"kubectl://{pod.metadata.name}?container={marker.kwargs['container_name']}&namespace={pod.metadata.namespace}"
+    )
+    delete_pod(namespace=pod.metadata.namespace, name=pod.metadata.name)
 
 
 @pytest.fixture(scope="function")

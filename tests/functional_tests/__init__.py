@@ -1,4 +1,5 @@
-from kubernetes import client, config
+from kubernetes import client, config, watch
+import time
 
 
 def get_core_v1_client(in_cluster=False):
@@ -30,14 +31,23 @@ def create_pod(
     command: list | None = None,
     labels: dict | None = None,
 ):
-    """Create a pod with a single container and return it. This will also create the namespace if it does not exist."""
+    """Create a pod with a single container and return it. This will also create the namespace if it does not exist.
+
+    The returned pod name has the unixtime in microseconds appended to it, which correlates to the pod label date_ms.
+    """
+
+    date_ms = str(time.time_ns())[:-3]
 
     if image is None:
         image = "quay.io/astronomer/ap-base:latest"
     if command is None:
         command = ["sleep", "300"]
     if labels is None:
-        labels = {}
+        labels = {"date_ms": date_ms}
+    else:
+        labels["date_ms"] = date_ms
+
+    pod_name = f"{pod_name}-{date_ms}"
 
     core_v1_client = get_core_v1_client()
 
@@ -73,4 +83,18 @@ def create_pod(
     )
     v1pod = client.V1Pod(spec=v1podspec, metadata=v1objectmeta)
 
-    return core_v1_client.create_namespaced_pod(namespace, v1pod)
+    pod = core_v1_client.create_namespaced_pod(namespace, v1pod)
+
+    # We wait for the pod to be healthy before returning it so that further operations do not fail due to the pod being unavailble.
+    w = watch.Watch()
+    for event in w.stream(
+        func=core_v1_client.list_namespaced_pod,
+        namespace=namespace,
+        label_selector=f"date_ms={date_ms}",
+        timeout_seconds=60,
+    ):
+        if event["object"].status.phase == "Running":
+            w.stop()
+            return pod
+
+    return False
