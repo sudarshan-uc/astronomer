@@ -36,12 +36,15 @@ def create_pod(
     The returned pod name has the unixtime in microseconds appended to it, which correlates to the pod label date_ms.
     """
 
+    # Trim off the last three ns digits, since they are always 0, which makes this microseconds
     date_ms = str(time.time_ns())[:-3]
 
     if image is None:
         image = "quay.io/astronomer/ap-base:latest"
     if command is None:
         command = ["sleep", "300"]
+
+    # We create a unique label so we can track this specific pod
     if labels is None:
         labels = {"date_ms": date_ms}
     else:

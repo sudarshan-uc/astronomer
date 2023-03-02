@@ -5,7 +5,7 @@ from os import getenv
 import docker
 import pytest
 import testinfra
-from . import get_core_v1_client, create_pod, delete_pod
+from . import get_core_v1_client, create_pod
 
 if not (namespace := getenv("NAMESPACE")):
     print("NAMESPACE env var is not present, using 'astronomer' namespace")
@@ -26,11 +26,10 @@ def pod(request):
     marker = request.node.get_closest_marker("pod_data")
 
     pod = create_pod(**marker.kwargs)
-    # breakpoint()
     yield testinfra.get_host(
         f"kubectl://{pod.metadata.name}?container={marker.kwargs['container_name']}&namespace={pod.metadata.namespace}"
     )
-    delete_pod(namespace=pod.metadata.namespace, name=pod.metadata.name)
+    # delete_pod(namespace=pod.metadata.namespace, name=pod.metadata.name)
 
 
 @pytest.fixture(scope="function")
