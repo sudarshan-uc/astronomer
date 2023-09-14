@@ -8,10 +8,10 @@ git_root_dir = Path(git_repo.git.rev_parse("--show-toplevel"))
 
 # This should match the major.minor version list in .circleci/generate_circleci_config.py
 # Patch version should always be 0
-supported_k8s_versions = ["1.22.0", "1.23.0", "1.24.0", "1.25.0", "1.26.0"]
+supported_k8s_versions = ["1.23.0", "1.24.0", "1.25.0", "1.26.0", "1.27.0"]
 
 
-def get_containers_by_name(doc, include_init_containers=False):
+def get_containers_by_name(doc, include_init_containers=False) -> dict:
     """Given a single doc, return all the containers by name.
 
     doc must be a valid spec for a pod manager. (EG: ds, sts)
