@@ -110,6 +110,10 @@ global:
 
   taskUsageMetricsEnabled: false
 
+  # Logging specifics
+  logging:
+    indexName: fluentd
+
   # Sidecar Logging
   loggingSidecar:
     enabled: false
