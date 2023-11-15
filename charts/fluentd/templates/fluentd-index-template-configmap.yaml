@@ -15,7 +15,7 @@ data:
   index_template.json: |-
     {
       "index_patterns": [
-          "{{ .Values.indexName }}.*"
+          "{{ .Values.global.indexName }}.*"
       ],
       "mappings": {
         "properties": {
