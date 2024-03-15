@@ -1,0 +1,20 @@
+global:
+  astronomer:
+    houston:
+      secret:
+        - envName: "AUTH__OPENID_CONNECT__OKTA__CLIENT_ID"
+          secretName: "okta-client-id"
+          secretKey: "okta_client_id"
+        - envName: "AUTH__OPENID_CONNECT__OKTA__CLIENT_SECRET"
+          secretName: "okta-client-secret"
+          secretKey: "okta_client_secret"
+        - envName: "EMAIL__SMTP_URL" # Reference to the Kubernetes secret for SMTP credentials. Can be removed if email is not used.
+          secretName: "astronomer-smtp"
+          secretKey: "connection"
+        - envName: "EMAIL__SMTP_URL" # Reference to the Kubernetes secret for SMTP credentials. Can be removed if email is not used.
+          secretName: "astronomer-smtp"
+          secretKey: "connection"
+astronomer:
+  commander:
+    airGapped:
+      enabled: True
