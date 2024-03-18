@@ -1,3 +1,5 @@
+# https://docs.astronomer.io/software/install-airgapped
+
 global:
   astronomer:
     houston:
@@ -14,7 +16,46 @@ global:
         - envName: "EMAIL__SMTP_URL" # Reference to the Kubernetes secret for SMTP credentials. Can be removed if email is not used.
           secretName: "astronomer-smtp"
           secretKey: "connection"
+  helmRepo: "http://artifactory.example.com:32775/artifactory/astro-helm-chart"
+  privateRegistry:
+    enabled: true
+    repository: quay.io
+
 astronomer:
   commander:
     airGapped:
-      enabled: True
+      enabled: true
+  houston:
+    config:
+      deployments:
+        helm:
+          runtimeImages:
+            airflow:
+              repository: quay.io/astronomer/astro-runtime
+            flower:
+              repository: quay.io/astronomer/astro-runtime
+          airflow:
+            defaultAirflowRepository: quay.io/astronomer/ap-airflow
+            defaultRuntimeRepository: quay.io/astronomer/astro-runtime
+            extraEnv:
+              - name: AIRFLOW__ASTRONOMER__UPDATE_URL
+                value: http://astronomer-releases.astronomer.svc.cluster.local/astronomer-runtime
+            images:
+              airflow:
+                repository: quay.io/astronomer/ap-airflow
+              statsd:
+                repository: quay.io/astronomer/ap-statsd-exporter
+              redis:
+                repository: quay.io/astronomer/ap-redis
+              pgbouncer:
+                repository: quay.io/astronomer/ap-pgbouncer
+              pgbouncerExporter:
+                repository: quay.io/astronomer/ap-pgbouncer-exporter
+              gitSync:
+                repository: quay.io/astronomer/ap-git-sync
+    updateCheck: # There is a 2nd check for Astronomer platform updates but this is deprecated and not actively used. Therefore disable
+      enabled: false
+    updateAirflowCheck: # Configure URL for Airflow updates check
+      url: http://astronomer-releases.astronomer.svc.cluster.local/astronomer-certified
+    updateRuntimeCheck: # Configure URL for Airflow updates check
+      url: http://astronomer-releases.astronomer.svc.cluster.local/astronomer-runtime
