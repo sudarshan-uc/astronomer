@@ -19,7 +19,7 @@ k8s_version_too_new = f'1.{str(int(supported_k8s_versions[-1].split(".")[1]) + 1
 def get_containers_by_name(doc, include_init_containers=False) -> dict:
     """Given a single doc, return all the containers by name.
 
-    doc must be a valid spec for a pod manager. (EG: ds, sts)
+    doc must be a valid spec for a pod manager. (EG: ds, sts, deployment)
     """
 
     c_by_name = {c["name"]: c for c in doc["spec"]["template"]["spec"]["containers"]}
