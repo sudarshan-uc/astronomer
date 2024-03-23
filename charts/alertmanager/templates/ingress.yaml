@@ -13,8 +13,8 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
-    {{- if .Values.global.authSidecar.enabled  }}
-{{- toYaml .Values.global.extraAnnotations | nindent 4 }}
+    {{- if .Values.global.authSidecar.enabled }}
+    {{- toYaml .Values.global.extraAnnotations | nindent 4 }}
     {{- else }}
     kubernetes.io/ingress.class: "{{ .Release.Name }}-nginx"
     kubernetes.io/tls-acme: {{ eq .Values.global.acme true | quote }}
@@ -23,6 +23,14 @@ metadata:
     nginx.ingress.kubernetes.io/auth-response-headers: authorization, username, email
     {{- end }}
 spec:
+  {{- if .Values.global.authSidecar.enabled  }}
+  ingressClassName: {{ .Values.global.authSidecar.ingressClassName }}
+  {{- else }}
+  ingressClassName: "{{ .Release.Name }}-nginx"
+  {{- end }}
+  {{- if .Values.global.authSidecar.enabled  }}
+  ingressClassName: {{ .Values.global.authSidecar.ingressClassName }}
+  {{- end }}
   {{- if or .Values.global.tlsSecret .Values.global.acme }}
   tls:
   {{- if .Values.global.acme }}

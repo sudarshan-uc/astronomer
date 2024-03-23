@@ -25,6 +25,11 @@ metadata:
       more_set_headers "Content-Security-Policy: script-src 'self'";
     {{- end }}
 spec:
+  {{- if .Values.global.authSidecar.enabled  }}
+  ingressClassName: {{ .Values.global.authSidecar.ingressClassName }}
+  {{- else }}
+  ingressClassName: "{{ .Release.Name }}-nginx"
+  {{- end }}
   {{- if or .Values.global.tlsSecret .Values.global.acme }}
   tls:
   {{- if .Values.global.acme }}

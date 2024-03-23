@@ -33,6 +33,11 @@ metadata:
     {{- toYaml .Values.houston.ingress.annotation  | nindent 4  }}
     {{- end }}
 spec:
+  {{- if .Values.global.authSidecar.enabled  }}
+  ingressClassName: {{ .Values.global.authSidecar.ingressClassName }}
+  {{- else }}
+  ingressClassName: "{{ .Release.Name }}-nginx"
+  {{- end }}
   {{- if or .Values.global.tlsSecret .Values.global.acme }}
   tls:
   {{- if .Values.global.acme }}

@@ -11,6 +11,28 @@ from tests.chart_tests.helm_template_generator import render_chart
     supported_k8s_versions,
 )
 class TestAuthSidecar:
+    def test_authSidecar_disabled(self, kube_version):
+        """Verify that no authSidecar configs are present when the feature is disabled."""
+        docs = render_chart(
+            kube_version=kube_version,
+            values={"global": {"authSidecar": {"enabled": False}}},
+        )
+        ingresses = [x for x in docs if x.get("kind") == "Ingress"]
+        assert len(ingresses) == 6, f"Expected 6 ingresses, got {len(ingresses)}"
+        assert all(
+            x["spec"]["ingressClassName"] == "release-name-nginx" for x in ingresses
+        )
+
+    def test_authSidecar_enabled(self, kube_version):
+        """Verify basic commonalities to all ingresses when authSidecar feature is enabled."""
+        docs = render_chart(
+            kube_version=kube_version,
+            values={"global": {"authSidecar": {"enabled": True}}},
+        )
+        ingresses = [x for x in docs if x.get("kind") == "Ingress"]
+        assert len(ingresses) == 6, f"Expected 6 ingresses, got {len(ingresses)}"
+        assert all(x["spec"]["ingressClassName"] == "authSidecar" for x in ingresses)
+
     def test_authSidecar_alertmanager(self, kube_version):
         """Test Alertmanager Service with authSidecar."""
         docs = render_chart(
