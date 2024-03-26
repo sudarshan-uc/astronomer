@@ -13,18 +13,22 @@ class TestIngress:
         # sourcery skip: extract-duplicate-method
         docs = render_chart(
             kube_version=kube_version,
-            show_only=["charts/astronomer/templates/ingress.yaml"],
+            show_only=[
+                "charts/astronomer/templates/ingress.yaml",
+                "charts/astronomer/templates/ingress_class.yaml",
+            ],
         )
 
-        assert len(docs) == 1
+        assert len(docs) == 2
 
-        doc = docs[0]
+        ing_obj = docs[0]
+        ing_cl_obj = docs[1]
 
-        assert doc["kind"] == "Ingress"
+        assert ing_obj["kind"] == "Ingress"
 
-        assert len(doc["metadata"]["annotations"]) >= 4
+        assert len(ing_obj["metadata"]["annotations"]) >= 4
         assert (
-            doc["metadata"]["annotations"]["kubernetes.io/ingress.class"]
+            ing_obj["metadata"]["annotations"]["kubernetes.io/ingress.class"]
             == "release-name-nginx"
         )
 
@@ -37,5 +41,7 @@ class TestIngress:
         """
         )
 
-        assert doc["apiVersion"] == "networking.k8s.io/v1"
-        assert doc["spec"]["rules"] == expected_rules_v1
+        assert ing_obj["apiVersion"] == "networking.k8s.io/v1"
+        assert ing_obj["spec"]["rules"] == expected_rules_v1
+
+        assert False
