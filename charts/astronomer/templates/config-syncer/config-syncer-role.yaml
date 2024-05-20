@@ -10,8 +10,10 @@
 {{- $namespaces := .Values.global.features.namespacePools.namespaces.names }}
 {{- if $useClusterRoles }}
   {{- $namespaces = list .Release.Namespace}}
-{{- else  }}
+{{- else if $.Values.commander.manageAirflowNamespaceRoles }}
   {{- $namespaces = append $namespaces .Release.Namespace }}
+{{- else  }}
+  {{- $namespaces = list .Release.Namespace}}
 {{- end }}''
 
 {{- if .Values.global.rbacEnabled }}

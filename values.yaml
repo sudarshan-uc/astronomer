@@ -333,6 +333,7 @@ astronomer:
         memory: "2048Mi"
 
   commander:
+    manageAirflowNamespaceRoles: true
     resources:
       requests:
         cpu: "250m"
