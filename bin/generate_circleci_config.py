@@ -14,8 +14,8 @@ metadata = yaml.safe_load((git_root_dir / "metadata.yaml").read_text())
 kube_versions = metadata["test_k8s_versions"]
 
 # https://circleci.com/developer/machine/image/ubuntu-2204
-machine_image_version = "ubuntu-2204:2024.01.1"
-ci_runner_version = "2024-03"
+machine_image_version = "ubuntu-2204:2024.05.1"
+ci_runner_version = "2024-07"
 
 
 def list_docker_images():
@@ -30,6 +30,14 @@ def list_docker_images():
 
 def main():
     """Render the Jinja2 template file."""
+    for version in kube_versions:
+        maj_min = version.rpartition(".")[0]
+        if not Path(
+            git_root_dir / "bin" / "kind" / f"calico-crds-v{maj_min}.yaml"
+        ).exists():
+            raise SystemExit(
+                f"ERROR: calico-crds-v{maj_min}.yaml is required for for CircleCI to succeed but it does not exist!"
+            )
     config_file_template_path = git_root_dir / ".circleci" / "config.yml.j2"
     config_file_path = git_root_dir / ".circleci" / "config.yml"
 
